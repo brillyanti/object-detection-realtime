@@ -47,22 +47,25 @@ st.title('YOLOv5 Object Detection with Voice Feedback')
 # Use checkbox for Start/Stop functionality
 is_detecting = st.checkbox("Start Detecting")
 
-cap = cv2.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
+if is_detecting:
+    cap = cv2.VideoCapture(0)
+    cap.set(3, 640)
+    cap.set(4, 480)
 
-while is_detecting:
-    ret, frame = cap.read()
+    while is_detecting:
+        ret, frame = cap.read()
 
-    if not ret:
-        break
+        if not ret:
+            break
 
-    img = Image.fromarray(frame[:, :, ::-1])
+        img = Image.fromarray(frame[:, :, ::-1])
 
-    # Perform object detection and provide voice feedback
-    perform_object_detection(img)
+        # Perform object detection and provide voice feedback
+        perform_object_detection(img)
 
-    st.image(np.array(img)[:, :, ::-1], channels="BGR")
+        st.image(np.array(img)[:, :, ::-1], channels="BGR")
 
-cap.release()
+    cap.release()
+
+# Clean up when done
 mixer.quit()
