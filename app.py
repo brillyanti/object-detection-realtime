@@ -1,18 +1,15 @@
 import streamlit as st
-import cv2
 import torch
 from gtts import gTTS
-from pygame import mixer
 from PIL import Image
 import numpy as np
 import time
+import cv2
+import requests
 
 # Load the YOLOv5 model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5m')
 model.eval()
-
-# Initialize the mixer for audio playback
-mixer.init()
 
 # Initialize a variable to keep track of time
 last_detection_time = 0
@@ -37,8 +34,7 @@ def perform_object_detection(image):
                 text = f"I see a {label_name}"
                 tts = gTTS(text=text, lang='en')
                 tts.save("output.mp3")
-                mixer.music.load("output.mp3")
-                mixer.music.play()
+                st.audio("output.mp3", format="audio/mp3")
                 last_detection_time = current_time
 
 # Streamlit app layout
@@ -47,22 +43,28 @@ st.title('YOLOv5 Object Detection with Voice Feedback')
 # Use checkbox for Start/Stop functionality
 is_detecting = st.checkbox("Start Detecting")
 
-cap = cv2.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
+if is_detecting:
+    try:
+        cap = cv2.VideoCapture(0)
+        cap.set(3, 640)
+        cap.set(4, 480)
 
-while is_detecting:
-    ret, frame = cap.read()
+        while is_detecting:
+            ret, frame = cap.read()
 
-    if not ret:
-        break
+            if not ret:
+                break
 
-    img = Image.fromarray(frame[:, :, ::-1])
+            img = Image.fromarray(frame[:, :, ::-1])
 
-    # Perform object detection and provide voice feedback
-    perform_object_detection(img)
+            # Perform object detection and provide voice feedback
+            perform_object_detection(img)
 
-    st.image(np.array(img)[:, :, ::-1], channels="BGR")
+            st.image(np.array(img)[:, :, ::-1], channels="BGR")
 
-cap.release()
-mixer.quit()
+        cap.release()
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+else:
+    st.info("Click 'Start Detecting' to begin object detection.")
+
