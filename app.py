@@ -1,5 +1,6 @@
 import streamlit as st
 import torch
+import gtts
 from gtts import gTTS
 from PIL import Image
 import numpy as np
